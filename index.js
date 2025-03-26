@@ -3,12 +3,12 @@ const express = require("express");
 const connect = require("./Db.Config/db.connect")
 const app = express();
 const customerrouter = require("./routes/customerRoute")
-<<<<<<< HEAD
+
 const cors = require("cors");
 const customerModel = require('./model/CustomerModel');
 const authenticateToken = require('./middlewares/AuthMiddleware');
 
-=======
+
 const cors = require("cors")
 const jwt = require("jsonwebtoken");
 
@@ -18,14 +18,14 @@ const authenticateToken = (req, res, next) => {
     if (!token) return res.status(401).json({ message: "Access Denied" });
 
     try {
-        const verified = jwt.verify(token.split(" ")[1], "YOUR_SECRET_KEY"); // Change to your actual secret key
+        const verified = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET ); // Change to your actual secret key
         req.user = verified;
         next();
     } catch (err) {
         res.status(403).json({ message: "Invalid Token" });
     }
 };
->>>>>>> fbdbce9bf0c3805655627e270beb844ff76672fe
+
 
 
 
@@ -41,7 +41,6 @@ app.get("/", (req, res) => {
     res.send("API is running...");
 });
 
-<<<<<<< HEAD
 app.get("/", (req, res) => {
     res.send("API is running...");
 });
@@ -63,18 +62,7 @@ app.get("/customer/details", authenticateToken, async (req, res) => {
         res.status(500).json({ message: "Error fetching user details" });
     }
 });
-
-=======
-app.get("/customer/details", authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id); // Assuming you're using MongoDB
-        res.json({ user });
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching user details" });
-    }
-});
->>>>>>> fbdbce9bf0c3805655627e270beb844ff76672fe
-
+2
 // Server Listening
 const port = process.env.PORT  || 5004;
 app.listen(port, () => {
