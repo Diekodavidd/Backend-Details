@@ -57,7 +57,7 @@ const LoginCustomer = async (req, res) => {
       // Generate JWT Token
       const token = jwt.sign({ id: existingCustomer._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-      return res.status(200).json({ message: "Login successful", status: true , token });
+      return res.status(200).json({ message: "Login successful", status: true  });
    } catch (error) {
       return res.status(500).json({ message: error.message, status: false });
    }
