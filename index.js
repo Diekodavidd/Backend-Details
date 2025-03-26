@@ -14,7 +14,18 @@ app.use("/customer", customerrouter)
 
 //You call on the fuction from Db.connect.js
 connect()
+app.get("/", (req, res) => {
+    res.send("API is running...");
+});
 
+app.get("/customer/details", authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id); // Assuming you're using MongoDB
+        res.json({ user });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching user details" });
+    }
+});
 
 // Server Listening
 const port = process.env.PORT  || 5004;
