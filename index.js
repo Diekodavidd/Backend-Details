@@ -6,8 +6,8 @@ const customerrouter = require("./routes/customerRoute")
 
 const cors = require("cors");
 const customerModel = require('./model/CustomerModel');
-const authenticateToken = require('./middlewares/AuthMiddleware');
-const jwt = require("jsonwebtoken");
+// const authenticateToken = require('./middlewares/AuthMiddleware');
+// const jwt = require("jsonwebtoken");
 
 
 
