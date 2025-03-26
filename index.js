@@ -20,32 +20,29 @@ app.use("/customer", customerrouter)
 
 //You call on the fuction from Db.connect.js
 connect()
-app.get("/", (req, res) => {
-    res.send("API is running...");
-});
 
 app.get("/", (req, res) => {
     res.send("API is running...");
 });
 
-app.get("/customer/details", authenticateToken, async (req, res) => {
-    try {
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized access" });
-        }
+// app.get("/customer/details", authenticateToken, async (req, res) => {
+//     try {
+//         if (!req.user || !req.user.id) {
+//             return res.status(401).json({ message: "Unauthorized access" });
+//         }
 
-        const user = await customerModel.findById(req.user.id);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
+//         const user = await customerModel.findById(req.user.id);
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found" });
+//         }
 
-        res.json({ user });
-    } catch (error) {
-        console.error("Error fetching user details:", error);
-        res.status(500).json({ message: "Error fetching user details" });
-    }
-});
-2
+//         res.json({ user });
+//     } catch (error) {
+//         console.error("Error fetching user details:", error);
+//         res.status(500).json({ message: "Error fetching user details" });
+//     }
+// });
+
 // Server Listening
 const port = process.env.PORT  || 5004;
 app.listen(port, () => {
