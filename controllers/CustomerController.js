@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs")
 const saltRound = 10;
 const jwt = require("jsonwebtoken"); // For token generation
 
+
+
 const SignUpCustomer = async (req, res) => {
    try {
       console.log(req.body);
@@ -52,10 +54,10 @@ const LoginCustomer = async (req, res) => {
          return res.status(401).json({ message: "Invalid credentials", status: false });
       }
 
-      // // Generate JWT Token
-      // const token = jwt.sign({ id: existingCustomer._id }, "your-secret-key", { expiresIn: "1h" });
+      // Generate JWT Token
+      const token = jwt.sign({ id: existingCustomer._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-      return res.status(200).json({ message: "Login successful", status: true });
+      return res.status(200).json({ message: "Login successful", status: true , token });
    } catch (error) {
       return res.status(500).json({ message: error.message, status: false });
    }
