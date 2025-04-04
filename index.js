@@ -14,9 +14,10 @@ const customerModel = require('./model/CustomerModel');
 
 app.use(cors({origin:"*"}))
 //you have to split your request to avoid udefined ad were usig .jso ecause its i json file
-app.use(express.json())
+app.use(express.json({limit:"60mb"}))
 //you route the router to a path with app.use
 app.use("/customer", customerrouter)
+
 
 //You call on the fuction from Db.connect.js
 connect()
