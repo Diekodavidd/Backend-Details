@@ -1,5 +1,6 @@
 const customerModel = require("../model/CustomerModel");
 const Product = require("../model/CommerceProduct");
+const Admin = require("../model/Admi");
 const bcrypt = require("bcryptjs")
 const saltRound = 10;
 const jwt = require("jsonwebtoken"); // For token generation
@@ -133,11 +134,11 @@ const addProduct = async (req, res) => {
       console.log("Received Data:", req.body); // Log incoming data
       console.log("Uploaded Files:", req.files); // Log uploaded files for better clarity
 
-      const { name, description, price } = req.body;
+      const { name, description, price, category } = req.body;
 
       // Check if all required fields are present
-      if (!name || !description || !price) {
-         console.log("Missing Fields:", { name, description, price });
+      if (!name || !description || !price || !category) {
+         console.log("Missing Fields:", { name, description, price, category }); // Log missing fields
          return res.status(400).json({ error: "All fields are required" });
       }
 
@@ -151,7 +152,7 @@ const addProduct = async (req, res) => {
       const imageUrls = await Promise.all(imageUploadPromises); // Wait for all uploads to complete
 
       // Create a new product with uploaded image URLs
-      const product = new Product({ name, description, price, imageUrl: imageUrls });
+      const product = new Product({ name, description, price,category, imageUrl: imageUrls });
       console.log("Product Data:", product); // Log the product data before saving
 
       // Save the product to the database
@@ -191,5 +192,90 @@ const getProductById = async (req, res) => {
   }
 };
 
+const deleteProduct = async (req, res) => {
+   try {
+     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+     if (!deletedProduct) return res.status(404).json({ message: "Product not found" });
+     res.status(200).json({ message: "Product deleted successfully" });
+   } catch (err) {
+     console.error("Error deleting product:", err);
+     res.status(500).json({ message: "Server error" });
+   }
+ };
 
-module.exports = { SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById };
+ const updateProduct = async (req, res) => {
+   try {
+     const { name, description, price, category } = req.body;
+     const images = req.files?.map((file) => file.path); // multer saves file path
+ 
+     const updatedData = {
+       name,
+       description,
+       price,
+       category
+     };
+ 
+     if (images?.length > 0) {
+       updatedData.imageUrl = images;
+     }
+ 
+     const updatedProduct = await Product.findByIdAndUpdate(
+       req.params.id,
+       updatedData,
+       { new: true }
+     );
+ 
+     if (!updatedProduct) return res.status(404).json({ message: "Product not found" });
+     res.status(200).json(updatedProduct);
+   } catch (err) {
+     console.error("Error updating product:", err);
+     res.status(500).json({ message: "Server error" });
+   }
+ };
+
+ const loginAdmin = async (req, res) => {
+   const { firstname, password } = req.body;
+ 
+   try {
+     const admin = await Admin.findOne({ firstname });
+     if (!admin) return res.status(401).json({ message: 'Invalid credentials' });
+ 
+     const isMatch = await bcrypt.compare(password, admin.password);
+     if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
+ 
+     const token = jwt.sign({ firstname: admin.firstname }, process.env.JWT_SECRET, { expiresIn: '1h' });
+ 
+     res.json({ token });
+   } catch (error) {
+     console.error('Login error:', error);
+     res.status(500).json({ message: 'Server error' });
+   }
+ };
+
+ const authenticateAdmToken = async (req, res) => {
+
+   try {
+      // console.log(req.headers.authorization.split(" ")[1]);
+      // Extract token from Authorization header
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1]; // Bearer <token>
+      console.log(token);
+
+      if (!token) {
+         return res.status(401).json({ message: "Access Denied: No token provided", status: false });
+      }
+      //  // Verify the token
+      const dawe = await jwt.verify(token, process.env.JWT_SECRET);
+      console.log(dawe);
+     const User = await Admin.findOne({ username: dawe.username });
+
+      if (!dawe) {
+         return res.status(403).json({ message: "Invalid or expired token" });
+      } return res.status(200).json({ message: "User Verified Successfully", status: true, User });
+   } catch (error) {
+         return res.status(500).json({ message: error.message, status: false });
+   }
+};
+
+
+module.exports = { SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById, deleteProduct, updateProduct, loginAdmin, authenticateAdmToken };

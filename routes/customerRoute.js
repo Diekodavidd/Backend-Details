@@ -1,6 +1,6 @@
 const express = require("express");
 const customerrouter = express.Router();
-const { uploadMultiple } = require("../utils/cloudinary");
+const { upload , uploadMultiple } = require("../utils/cloudinary");
 
 const {
   SignUpCustomer,
@@ -8,7 +8,9 @@ const {
   authenticateToken,
   uploadProfile,
   addProduct,
-  getallProducts,getProductById
+  getallProducts,getProductById,
+  deleteProduct,
+  updateProduct, loginAdmin, authenticateAdmToken
 } = require("../controllers/CustomerController");
 
 customerrouter.post('/login', LoginCustomer);
@@ -27,5 +29,16 @@ customerrouter.get("/products", getallProducts);
 
 // Route to get product by ID
 customerrouter.get("/product/:id", getProductById);
+
+// DELETE a product
+customerrouter.delete("/products/:id", deleteProduct);
+
+// UPDATE a product
+customerrouter.put("/products/:id", upload.array("images", 5), updateProduct);
+
+customerrouter.post('/loginad', loginAdmin);
+
+
+customerrouter.get("/verifyy", authenticateAdmToken);
 
 module.exports = customerrouter;
