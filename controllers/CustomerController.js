@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs")
 const saltRound = 10;
 const jwt = require("jsonwebtoken"); // For token generation
 const { cloudinary } = require("../utils/cloudinary");
+require('dotenv').config();  // Load environment variables from .env file
 // const { upload } = require("../utils/cloudinary");
 
 
