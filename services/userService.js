@@ -21,4 +21,4 @@ const userService = {
   }
 };
 
-export default userService;
+module.exports = userService;
