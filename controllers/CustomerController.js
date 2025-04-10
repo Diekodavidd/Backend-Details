@@ -10,7 +10,8 @@ require('dotenv').config();  // Load environment variables from .env file
 // const sendmail = require("../utils/sendWelcome")
 const sendWelcome = require("../utils/sendWelcome");
 const sendResetPassword = require("../utils/sendResetPassword");
-import userService from "../services/userService";
+// import userService from "../services/userService";
+const userService = require("../services/userService");
 
 
 
