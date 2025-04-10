@@ -10,7 +10,7 @@ const {
   addProduct,
   getallProducts,getProductById,
   deleteProduct,
-  updateProduct, loginAdmin, authenticateAdmToken
+  updateProduct, loginAdmin, authenticateAdmToken, RegisterUser,ResetPassword , ForgotPassword
 } = require("../controllers/CustomerController");
 
 customerrouter.post('/login', LoginCustomer);
@@ -40,5 +40,9 @@ customerrouter.post('/loginad', loginAdmin);
 
 
 customerrouter.get("/verifyy", authenticateAdmToken);
+
+// 🔐 Forgot/Reset Password routes
+customerrouter.post("/forgot-password", ForgotPassword);
+customerrouter.post("/reset-password/:token", ResetPassword);
 
 module.exports = customerrouter;

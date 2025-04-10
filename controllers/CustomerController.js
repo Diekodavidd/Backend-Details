@@ -7,7 +7,10 @@ const jwt = require("jsonwebtoken"); // For token generation
 const { cloudinary } = require("../utils/cloudinary");
 require('dotenv').config();  // Load environment variables from .env file
 // const { upload } = require("../utils/cloudinary");
-const sendmail = require("../utils/mailer")
+// const sendmail = require("../utils/sendWelcome")
+const sendWelcome = require("../utils/sendWelcome");
+const sendResetPassword = require("../utils/sendResetPassword");
+
 
 
 
@@ -29,7 +32,7 @@ const SignUpCustomer = async (req, res) => {
             firstname, lastname, email, Password: hashedPassword
          }
       );
-       const sentmail = await sendmail(email,firstname)
+       const sentmail = await sendWelcome(email,firstname)
        console.log(sentmail);
       if (!createdCustomer) {
          return res.status(402).json({ message: "An error occurred when creating customer", status: false });
@@ -115,7 +118,7 @@ const uploadProfile = async(req,res) =>{
     return res.status(200).json({ message: "Profile picture updated successfully", status: true})
    } catch (error) {
       console.log(error);
-      return res.status(500).json({message:Error.message, status:false})
+      return res.status(500).json({message:error.message, status:false})
    }
 }
 
@@ -218,9 +221,13 @@ const deleteProduct = async (req, res) => {
        category
      };
  
+     let imageUrls;
      if (images?.length > 0) {
-       updatedData.imageUrl = images;
+        const imageUploadPromises = images.map(path => uploadImageToCloudinary(path));
+        imageUrls = await Promise.all(imageUploadPromises);
+        updatedData.imageUrl = imageUrls;
      }
+     
  
      const updatedProduct = await Product.findByIdAndUpdate(
        req.params.id,
@@ -270,8 +277,7 @@ const deleteProduct = async (req, res) => {
       //  // Verify the token
       const dawe = await jwt.verify(token, process.env.JWT_SECRET);
       console.log(dawe);
-     const User = await Admin.findOne({ username: dawe.username });
-
+      const User = await Admin.findOne({ firstname: dawe.firstname });
       if (!dawe) {
          return res.status(403).json({ message: "Invalid or expired token" });
       } return res.status(200).json({ message: "User Verified Successfully", status: true, User });
@@ -281,4 +287,52 @@ const deleteProduct = async (req, res) => {
 };
 
 
-module.exports = { SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById, deleteProduct, updateProduct, loginAdmin, authenticateAdmToken };
+const ForgotPassword = async (req, res) => {
+   try {
+     const { email } = req.body;
+     if (!email) return res.status(400).json({ message: "Email is required" });
+ 
+     const user = await customerModel.findOne({ email });
+     if (!user) return res.status(404).json({ message: "User not found" });
+ 
+     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "15m" });
+ 
+     await sendResetPassword(email, token);
+ 
+     res.status(200).json({ message: "Reset email sent", status: true });
+   } catch (error) {
+     console.error("Forgot password error:", error);
+     res.status(500).json({ message: error.message, status: false });
+   }
+ };
+ 
+ 
+ const ResetPassword = async (req, res) => {
+   try {
+     const { token, newPassword } = req.body;
+ 
+     if (!token || !newPassword) {
+       return res.status(400).json({ message: "Token and new password are required", status: false });
+     }
+ 
+     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+     const user = await customerModel.findOne({ email: decoded.email });
+ 
+     if (!user) {
+       return res.status(404).json({ message: "User not found", status: false });
+     }
+ 
+     const hashedPassword = await bcrypt.hash(newPassword, saltRound);
+     user.Password = hashedPassword;
+     await user.save();
+ 
+     return res.status(200).json({ message: "Password has been reset successfully", status: true });
+ 
+   } catch (error) {
+     console.error("Reset Password Error:", error);
+     return res.status(500).json({ message: error.message, status: false });
+   }
+ };
+
+
+module.exports = { SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById, deleteProduct, updateProduct, loginAdmin, authenticateAdmToken , ForgotPassword, ResetPassword};
