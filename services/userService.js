@@ -11,7 +11,7 @@ const userService = {
     const user = await customerModel.findOne({ email });
     if (!user) throw new Error('User not found');
     
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "15m" });
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "30m" });
     return `https://lyonmart.netlify.app/reset/${token}`;
   },
 
