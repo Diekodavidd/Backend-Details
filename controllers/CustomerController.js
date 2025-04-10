@@ -10,6 +10,7 @@ require('dotenv').config();  // Load environment variables from .env file
 // const sendmail = require("../utils/sendWelcome")
 const sendWelcome = require("../utils/sendWelcome");
 const sendResetPassword = require("../utils/sendResetPassword");
+import userService from "../services/userService";
 
 
 
@@ -287,17 +288,17 @@ const deleteProduct = async (req, res) => {
 };
 
 
+// Forgot Password Route
 const ForgotPassword = async (req, res) => {
    try {
      const { email } = req.body;
      if (!email) return res.status(400).json({ message: "Email is required" });
  
-     const user = await customerModel.findOne({ email });
-     if (!user) return res.status(404).json({ message: "User not found" });
+     // Use userService to generate reset link
+     const resetLink = await userService.generateResetLink(email);
  
-     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "15m" });
- 
-     await sendResetPassword(email, token);
+     // Send reset email via userService
+     await userService.sendResetEmail(email, resetLink);
  
      res.status(200).json({ message: "Reset email sent", status: true });
    } catch (error) {
@@ -306,7 +307,7 @@ const ForgotPassword = async (req, res) => {
    }
  };
  
- 
+ // Reset Password Route
  const ResetPassword = async (req, res) => {
    try {
      const { token, newPassword } = req.body;
@@ -315,26 +316,26 @@ const ForgotPassword = async (req, res) => {
      if (!token || !newPassword) {
        return res.status(400).json({ message: "Token and new password are required", status: false });
      }
-
-     // Verify the token
+ 
+     // Verify the token and get the user info from the decoded token
      let decoded;
      try {
        decoded = jwt.verify(token, process.env.JWT_SECRET);
      } catch (err) {
        return res.status(400).json({ message: "Invalid or expired token", status: false });
      }
-
-     // Find user based on decoded email from the token
+ 
+     // Use userService to reset the password
      const user = await customerModel.findOne({ email: decoded.email });
      if (!user) {
        return res.status(404).json({ message: "User not found", status: false });
      }
-
-     // Hash the new password and update the user
+ 
+     // Use userService's logic for password update
      const hashedPassword = await bcrypt.hash(newPassword, saltRound);
      user.Password = hashedPassword;
      await user.save();
-
+ 
      // Send success response
      return res.status(200).json({ message: "Password has been reset successfully", status: true });
  
@@ -342,7 +343,7 @@ const ForgotPassword = async (req, res) => {
      console.error("Reset Password Error:", error);
      return res.status(500).json({ message: "Something went wrong. Please try again later.", status: false });
    }
-};
+ };
 
 
 
