@@ -1,6 +1,9 @@
-import { sendResetPassword } from '../utils/sendResetPassword.js';
-import customerModel from '../models/customerModel.js';
-import jwt from 'jsonwebtoken';
+// import { sendResetPassword } from '../utils/sendResetPassword.js';
+const sendResetPassword = require('../utils/sendResetPassword.js'); // Adjust the path as necessary
+// import customerModel from '../models/customerModel.js';
+const customerModel = require('../models/customerModel.js'); // Adjust the path as necessary
+// import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken'); // Adjust the path as necessary
 
 const userService = {
   // Method to generate reset link for the user
