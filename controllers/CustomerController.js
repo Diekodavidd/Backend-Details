@@ -311,28 +311,39 @@ const ForgotPassword = async (req, res) => {
    try {
      const { token, newPassword } = req.body;
  
+     // Check if both token and newPassword are provided
      if (!token || !newPassword) {
        return res.status(400).json({ message: "Token and new password are required", status: false });
      }
- 
-     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+     // Verify the token
+     let decoded;
+     try {
+       decoded = jwt.verify(token, process.env.JWT_SECRET);
+     } catch (err) {
+       return res.status(400).json({ message: "Invalid or expired token", status: false });
+     }
+
+     // Find user based on decoded email from the token
      const user = await customerModel.findOne({ email: decoded.email });
- 
      if (!user) {
        return res.status(404).json({ message: "User not found", status: false });
      }
- 
+
+     // Hash the new password and update the user
      const hashedPassword = await bcrypt.hash(newPassword, saltRound);
      user.Password = hashedPassword;
      await user.save();
- 
+
+     // Send success response
      return res.status(200).json({ message: "Password has been reset successfully", status: true });
  
    } catch (error) {
      console.error("Reset Password Error:", error);
-     return res.status(500).json({ message: error.message, status: false });
+     return res.status(500).json({ message: "Something went wrong. Please try again later.", status: false });
    }
- };
+};
+
 
 
 module.exports = { SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById, deleteProduct, updateProduct, loginAdmin, authenticateAdmToken , ForgotPassword, ResetPassword};

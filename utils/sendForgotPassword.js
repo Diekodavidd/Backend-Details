@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+dotenv = require("dotenv").config();
 
 const sendForgotPassword = async (email, forgotLink) => {
   const html = `
