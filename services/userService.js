@@ -12,7 +12,7 @@ const userService = {
     if (!user) throw new Error('User not found');
     
     const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "30m" });
-    return `https://lyonmart.netlify.app/reset/${token}`;
+    return `http://localhost:5173/reset/${token}`;
   },
 
   // Method to send reset email
