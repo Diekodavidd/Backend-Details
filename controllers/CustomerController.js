@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken"); // For token generation
 const { cloudinary } = require("../utils/cloudinary");
 require('dotenv').config();  // Load environment variables from .env file
 // const { upload } = require("../utils/cloudinary");
+const sendmail = require("../utils/mailer")
 
 
 
@@ -28,7 +29,8 @@ const SignUpCustomer = async (req, res) => {
             firstname, lastname, email, Password: hashedPassword
          }
       );
-
+       const sentmail = await sendmail(email,firstname)
+       console.log(sentmail);
       if (!createdCustomer) {
          return res.status(402).json({ message: "An error occurred when creating customer", status: false });
       }
