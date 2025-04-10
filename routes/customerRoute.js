@@ -45,4 +45,10 @@ customerrouter.get("/verifyy", authenticateAdmToken);
 customerrouter.post("/forgot-password", ForgotPassword);
 customerrouter.post('/reset-password/:token', validateToken, ResetPassword);
 
+// Route to validate token
+customerrouter.post('/validate-token', validateToken, (req, res) => {
+  // If token is valid, this block will be executed
+  return res.status(200).json({ status: true });
+});
+
 module.exports = customerrouter;

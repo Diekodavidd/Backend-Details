@@ -311,7 +311,8 @@ const ForgotPassword = async (req, res) => {
  // Reset Password Route
  const ResetPassword = async (req, res) => {
    try {
-     const { token, newPassword } = req.body;
+     const { newPassword } = req.body; // New password from body
+     const { token } = req.params; // Token from URL params
  
      // Check if both token and newPassword are provided
      if (!token || !newPassword) {
@@ -321,19 +322,19 @@ const ForgotPassword = async (req, res) => {
      // Verify the token and get the user info from the decoded token
      let decoded;
      try {
-       decoded = jwt.verify(token, process.env.JWT_SECRET);
+       decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token using your JWT secret
      } catch (err) {
        return res.status(400).json({ message: "Invalid or expired token", status: false });
      }
  
-     // Use userService to reset the password
+     // Find the user associated with the decoded token
      const user = await customerModel.findOne({ email: decoded.email });
      if (!user) {
        return res.status(404).json({ message: "User not found", status: false });
      }
  
-     // Use userService's logic for password update
-     const hashedPassword = await bcrypt.hash(newPassword, saltRound);
+     // Hash the new password and save it
+     const hashedPassword = await bcrypt.hash(newPassword, 10); // Ensure saltRounds (10 in this case)
      user.Password = hashedPassword;
      await user.save();
  
@@ -345,6 +346,7 @@ const ForgotPassword = async (req, res) => {
      return res.status(500).json({ message: "Something went wrong. Please try again later.", status: false });
    }
  };
+ 
 
  const validateToken = (req, res, next) => {
    const authHeader = req.headers["authorization"];
