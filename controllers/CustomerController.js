@@ -346,6 +346,24 @@ const ForgotPassword = async (req, res) => {
    }
  };
 
+ const validateToken = (req, res, next) => {
+   const authHeader = req.headers["authorization"];
+   const token = authHeader && authHeader.split(" ")[1]; // Bearer <token>
+
+   if (!token) {
+      return res.status(401).json({ message: "Access Denied: No token provided", status: false });
+   }
+
+   try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded; // Attach the decoded user info to the request
+      next(); // Proceed to the next middleware/controller
+   } catch (err) {
+      return res.status(403).json({ message: "Invalid or expired token", status: false });
+   }
+};
 
 
-module.exports = { SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById, deleteProduct, updateProduct, loginAdmin, authenticateAdmToken , ForgotPassword, ResetPassword};
+
+
+module.exports = { SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById, deleteProduct, updateProduct, loginAdmin, authenticateAdmToken , ForgotPassword, ResetPassword,validateToken};

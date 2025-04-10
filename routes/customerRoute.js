@@ -10,7 +10,7 @@ const {
   addProduct,
   getallProducts,getProductById,
   deleteProduct,
-  updateProduct, loginAdmin, authenticateAdmToken, RegisterUser,ResetPassword , ForgotPassword
+  updateProduct, loginAdmin, authenticateAdmToken, RegisterUser,ResetPassword , ForgotPassword, validateToken
 } = require("../controllers/CustomerController");
 
 customerrouter.post('/login', LoginCustomer);
@@ -43,6 +43,6 @@ customerrouter.get("/verifyy", authenticateAdmToken);
 
 // 🔐 Forgot/Reset Password routes
 customerrouter.post("/forgot-password", ForgotPassword);
-customerrouter.post("/reset-password/:token", ResetPassword);
+customerrouter.post('/reset-password/:token', validateToken, ResetPassword);
 
 module.exports = customerrouter;
