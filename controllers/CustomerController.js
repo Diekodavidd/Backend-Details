@@ -1,6 +1,7 @@
 const customerModel = require("../model/CustomerModel");
 const Product = require("../model/CommerceProduct");
 const Admin = require("../model/Admi");
+const Cart = require("../model/Cart");
 const bcrypt = require("bcryptjs")
 const saltRound = 10;
 const jwt = require("jsonwebtoken"); // For token generation
@@ -365,7 +366,59 @@ const ForgotPassword = async (req, res) => {
    }
 };
 
+const mongoose = require("mongoose");
+
+const getUserCart = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log("Fetching cart for:", userId);
+
+    const cart = await Cart.findOne({ userId: new mongoose.Types.ObjectId(userId) })
+      .populate("items.productId"); // ✅ Correct path
+
+    if (!cart) {
+      console.log("Cart not found for userId:", userId);
+      return res.status(404).json({ message: "Cart not found", status: false });
+    }
+
+    res.status(200).json({ status: true, cart });
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+    res.status(500).json({ message: "Failed to retrieve cart", status: false });
+  }
+};
+
+
+const saveCart = async (req, res) => {
+  try {
+    const { userId, items } = req.body;
+
+    if (!userId || !items || items.length === 0) {
+      return res.status(400).json({ message: "User ID and cart items are required", status: false });
+    }
+
+    // Check if user exists
+    const user = await customerModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found", status: false });
+    }
+
+    // Either update existing cart or create new one
+    const updatedCart = await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { items } },
+      { new: true, upsert: true } // upsert creates new cart if one doesn't exist
+    );
+
+    res.status(200).json({ message: "Cart saved successfully", cart: updatedCart, status: true });
+
+  } catch (error) {
+    console.error("Error saving cart:", error);
+    res.status(500).json({ message: error.message, status: false });
+  }
+};
 
 
 
-module.exports = { SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById, deleteProduct, updateProduct, loginAdmin, authenticateAdmToken , ForgotPassword, ResetPassword,validateToken};
+
+module.exports = {saveCart, getUserCart, SignUpCustomer, LoginCustomer, authenticateToken, uploadProfile, addProduct, getallProducts, getProductById, deleteProduct, updateProduct, loginAdmin, authenticateAdmToken , ForgotPassword, ResetPassword,validateToken};

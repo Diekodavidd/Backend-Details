@@ -10,7 +10,14 @@ const {
   addProduct,
   getallProducts,getProductById,
   deleteProduct,
-  updateProduct, loginAdmin, authenticateAdmToken, RegisterUser,ResetPassword , ForgotPassword, validateToken
+  updateProduct, 
+  loginAdmin, 
+  authenticateAdmToken
+  ,ResetPassword , 
+  ForgotPassword, 
+  validateToken,
+  getUserCart
+  ,saveCart
 } = require("../controllers/CustomerController");
 
 customerrouter.post('/login', LoginCustomer);
@@ -50,5 +57,14 @@ customerrouter.post('/validate-token', validateToken, (req, res) => {
   // If token is valid, this block will be executed
   return res.status(200).json({ status: true });
 });
+
+
+// Route to save cart details
+customerrouter.post("/cart/save", saveCart);
+
+
+
+customerrouter.get("/get-cart/:userId", getUserCart);
+
 
 module.exports = customerrouter;
