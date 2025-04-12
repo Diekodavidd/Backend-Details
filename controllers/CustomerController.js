@@ -48,35 +48,34 @@ const SignUpCustomer = async (req, res) => {
 };
 
 const LoginCustomer = async (req, res) => {
-   try {
-      console.log(req.body);
-      const { email, Password } = req.body;
+  try {
+     console.log(req.body);
+     const { email, Password } = req.body;
 
-      if (!email || !Password) {
-         return res.status(400).json({ message: "Email and Password are required", status: false });
-      }
-      const existingCustomer = await customerModel.findOne({ email });
-      console.log(existingCustomer);
+     if (!email || !Password) {
+        return res.status(400).json({ message: "Email and Password are required", status: false });
+     }
+     const existingCustomer = await customerModel.findOne({ email });
+     console.log(existingCustomer);
 
-      if (!existingCustomer) {
-         return res.status(404).json({ message: "User not found", status: false });
-      }
+     if (!existingCustomer) {
+        return res.status(404).json({ message: "User not found", status: false });
+     }
 
-      const ValidPassword = await bcrypt.compare(Password, existingCustomer.Password);
-      if (!ValidPassword) {
-         return res.status(401).json({ message: "Invalid credentials", status: false });
-      }
+     const ValidPassword = await bcrypt.compare(Password, existingCustomer.Password);
+     if (!ValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials", status: false });
+     }
 
-      // Generate JWT Token
-      const token = jwt.sign({email: user.email, userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+     // Generate JWT Token using existingCustomer
+     const token = jwt.sign({ email: existingCustomer.email, userId: existingCustomer._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-      return res.status(200).json({ message: "Login successful", status: true, existingCustomer, token });
-
-
-   } catch (error) {
-      return res.status(500).json({ message: error.message, status: false });
-   }
+     return res.status(200).json({ message: "Login successful", status: true, existingCustomer, token });
+  } catch (error) {
+     return res.status(500).json({ message: error.message, status: false });
+  }
 };
+
 
 const authenticateToken = async (req, res) => {
 
