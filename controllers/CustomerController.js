@@ -365,15 +365,18 @@ const ForgotPassword = async (req, res) => {
    }
 };
 
-const mongoose = require("mongoose");
 
 const getUserCart = async (req, res) => {
   try {
     const { userId } = req.params;
     console.log("Fetching cart for:", userId);
 
-    const cart = await Cart.findOne({ userId: new mongoose.Types.ObjectId(userId) })
-      .populate("items.productId");
+
+     // Ensure we populate the productId field correctly and handle any errors if it's null
+     const cart = await Cart.findOne({ userId: new mongoose.Types.ObjectId(String(userId))
+ })
+     .populate("items.productId"); // This will fetch the full product details for productId
+
 
     if (!cart) {
       console.log("Cart not found, returning empty cart.");
@@ -388,22 +391,28 @@ const getUserCart = async (req, res) => {
       });
     }
 
-   const formattedItems = cart.items.map(item => {
-  const product = item.productId;
+    // Now, map over the cart items and access product details
+    const formattedItems = cart.items.map(item => {
+      const product = item.productId; // Access the populated product details
 
-  return {
-    _id: item._id, // Cart item ID (used for cart ops)
-    productId: product?._id || null,
-    name: product?.name || "Product no longer available",
-    image: Array.isArray(product?.imageUrl) ? product.imageUrl[0] : "/placeholder.png",
-    price: typeof product?.price === "number" ? product.price : 0,
-    quantity: item.quantity || 1,
-    category: product?.category || "Unknown",
-    description: product?.description || "This product is no longer available.",
-  };
-});
+      // Check if product is populated (not an ObjectId)
+      if (!product) {
+        console.log("Product not found for cart item:", item);
+      }
 
-    
+      return {
+        _id: item._id, // Cart item ID (used for cart operations like updating/removing)
+        productId: product ? product._id : item._id || null, // Use the populated productId if product is available
+        name: product?.name || "Product no longer available", // Use product name or fallback
+        image: Array.isArray(product?.imageUrl) ? product.imageUrl[0] : "/placeholder.png", // Handle image array
+        price: typeof product?.price === "number" ? product.price : 0, // Ensure price is a number
+        quantity: item.quantity || 1, // Use quantity from cart item
+        category: product?.category || "Unknown", // Fallback to Unknown if category is missing
+        description: product?.description || "This product is no longer available.", // Fallback if description is missing
+      };
+    });
+
+    // Calculate totalQuantity and totalPrice
     const totalQuantity = formattedItems.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = formattedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -421,6 +430,7 @@ const getUserCart = async (req, res) => {
     res.status(500).json({ message: "Failed to retrieve cart", status: false });
   }
 };
+
 
 
 
