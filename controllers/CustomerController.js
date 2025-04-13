@@ -388,18 +388,22 @@ const getUserCart = async (req, res) => {
       });
     }
 
-    const formattedItems = cart.items.map(item => {
-      const product = item.productId || {};
+    const formattedItems = cart.items.map((item) => {
+      const product = item.productId;
+    
       return {
-        _id: product._id || item._id, // fallback to item ID if product is missing
-        name: product.name || "Product no longer available",
-        image: product.imageUrl?.[0] || "/placeholder.png",
-        price: product.price || 0,
+        _id: item._id, // this is the cart item ID (useful for updates/removal)
+    
+        // Safely check if product is available before accessing its fields
+        name: product?.name || "Unavailable Product",
+        image: Array.isArray(product?.imageUrl) ? product.imageUrl[0] : "/placeholder.png",
+        price: product?.price || 0,
         quantity: item.quantity,
-        category: product.category || "Unknown",
-        description: product.description || "This product is no longer available.",
+        category: product?.category || "Unknown",
+        description: product?.description || "This product may no longer be available.",
       };
     });
+    
     
     const totalQuantity = formattedItems.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = formattedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
