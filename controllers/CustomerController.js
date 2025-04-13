@@ -373,19 +373,53 @@ const getUserCart = async (req, res) => {
     console.log("Fetching cart for:", userId);
 
     const cart = await Cart.findOne({ userId: new mongoose.Types.ObjectId(userId) })
-      .populate("items.productId"); // ✅ Correct path
+      .populate("items.productId");
 
     if (!cart) {
-      console.log("Cart not found for userId:", userId);
-      return res.status(404).json({ message: "Cart not found", status: false });
+      console.log("Cart not found, returning empty cart.");
+      return res.status(200).json({
+        status: true,
+        cart: {
+          userId,
+          items: [],
+          totalPrice: 0,
+          totalQuantity: 0,
+        },
+      });
     }
 
-    res.status(200).json({ status: true, cart });
+    const formattedItems = cart.items.map(item => {
+      const product = item.productId;
+      return {
+        _id: product._id,
+        name: product.name,
+        image: product.imageUrl?.[0] || "",
+        price: product.price,
+        quantity: item.quantity,
+        category: product.category,
+        description: product.description,
+      };
+    });
+
+    const totalQuantity = formattedItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = formattedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    res.status(200).json({
+      status: true,
+      cart: {
+        userId,
+        items: formattedItems,
+        totalQuantity,
+        totalPrice,
+      },
+    });
   } catch (error) {
     console.error("Error fetching cart:", error);
     res.status(500).json({ message: "Failed to retrieve cart", status: false });
   }
 };
+
+
 
 
 const saveCart = async (req, res) => {
