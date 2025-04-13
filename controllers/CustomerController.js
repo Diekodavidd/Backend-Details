@@ -392,12 +392,12 @@ const getUserCart = async (req, res) => {
       const product = item.productId || {};
       return {
         _id: product._id || item._id, // fallback to item ID if product is missing
-        name: product.name || item.name || "Product no longer available",
+        name: product.name || prouct.productId.name || "Product no longer available",
         image:  product.imageUrl?.[0] || item.imageUrl?.[0] || "/placeholder.png",
-        price: product.price || 0,
-        quantity: item.quantity,
-        category: product.category || "Unknown",
-        description: product.description || "This product is no longer available.",
+        price: product.price || item.price || 0,
+        quantity:product.quantity || item.quantity,
+        category:  product.category || item.category || "Unknown",
+        description: product.description || item.description || "This product is no longer available.",
       };
     });
     
