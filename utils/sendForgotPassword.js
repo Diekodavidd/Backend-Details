@@ -5,6 +5,7 @@ const sendForgotPassword = async (email, forgotLink) => {
   const html = `
     <html>
       <body style="background:#111111;color:#F5F5F5;padding:40px;text-align:center;font-family:sans-serif;">
+        <h1 style="color:#D4AF37">Lyon Mart!</h1>
         <h2 style="color:#D4AF37">Forgot Your Password?</h2>
         <p style="color:#ccc">We received a request to reset your password. Click the button below to continue:</p>
         <a href="${forgotLink}" style="display:inline-block;margin-top:20px;padding:10px 25px;background:#C14B4B;color:white;border-radius:6px;text-decoration:none;">Reset Password</a>

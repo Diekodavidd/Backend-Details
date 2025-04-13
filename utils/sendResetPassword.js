@@ -4,7 +4,8 @@ const sendResetPassword = async (email, resetLink) => {
   const html = `
     <html>
       <body style="background:#111111;color:#F5F5F5;padding:40px;text-align:center;font-family:sans-serif;">
-        <h2 style="color:#D4AF37">Reset Your Password</h2>
+           <h1 style="color:#D4AF37">Lyon Mart!</h1>
+      <h2 style="color:#D4AF37">Reset Your Password</h2>
         <p style="color:#ccc">We received a request to reset your password. Click the button below to continue:</p>
         <a href="${resetLink}" style="display:inline-block;margin-top:20px;padding:10px 25px;background:#C14B4B;color:white;border-radius:6px;text-decoration:none;">Reset Password</a>
         <p style="margin-top:30px;font-size:0.9em;color:#aaa;">If you didn't request this, you can safely ignore it.</p>
