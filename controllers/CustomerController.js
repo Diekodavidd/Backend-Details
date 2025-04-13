@@ -389,18 +389,18 @@ const getUserCart = async (req, res) => {
     }
 
     const formattedItems = cart.items.map(item => {
-      const product = item.productId;
+      const product = item.productId || {};
       return {
-        _id: product._id,
-        name: product.name,
-        image: product.imageUrl?.[0] || "",
-        price: product.price,
+        _id: product._id || item._id, // fallback to item ID if product is missing
+        name: product.name || "Product no longer available",
+        image: product.imageUrl?.[0] || "/placeholder.png",
+        price: product.price || 0,
         quantity: item.quantity,
-        category: product.category,
-        description: product.description,
+        category: product.category || "Unknown",
+        description: product.description || "This product is no longer available.",
       };
     });
-
+    
     const totalQuantity = formattedItems.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = formattedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
