@@ -59,4 +59,8 @@ const io = socket(connection,{
 io.on("connection", (socket)=>{
     console.log("a user connected");
     
+    socket.on("sendmessage", (message)=>{
+        console.log(message);
+        
+    })
 })
