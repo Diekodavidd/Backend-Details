@@ -6,6 +6,8 @@ const customerrouter = require("./routes/customerRoute")
 
 const cors = require("cors");
 const customerModel = require('./model/CustomerModel');
+
+const socket = require('socket.io')
 // const authenticateToken = require('./middlewares/AuthMiddleware');
 // const jwt = require("jsonwebtoken");
 
@@ -46,6 +48,15 @@ app.get("/", (req, res) => {
 
 // Server Listening
 const port = process.env.PORT  || 5004;
-app.listen(port, () => {
+const connection = app.listen(port, () => {
     console.log(`app started at port ${port}`)
+})
+const io = socket(connection,{
+    cors: {origin:"*"}
+    // cors: {origin:"https://lyonmart.netlify.app/"}
+})
+
+io.on("connection", (socket)=>{
+    console.log("a user connected");
+    
 })

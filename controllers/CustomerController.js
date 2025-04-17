@@ -440,6 +440,8 @@ const getUserCart = async (req, res) => {
 const saveCart = async (req, res) => {
   try {
     const { userId, items } = req.body;
+    console.log(req.headers);
+    
 
     if (!userId || !items || items.length === 0) {
       return res.status(400).json({ message: "User ID and cart items are required", status: false });
